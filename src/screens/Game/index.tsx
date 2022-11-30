@@ -1,32 +1,92 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Board } from "../../components/Board";
+import { Button } from "../../components/Button";
+import { Center } from "../../components/Center";
+import { Input } from "../../components/Input";
+import { PlayerElement } from "../../components/PlayerElement";
 import { useGameSocket } from "../../hooks/useGameSocket";
+import {
+  GameScreenContainer,
+  GameScreenContent,
+  GameScreenForm,
+  GameScreenSubtitle,
+  GameScreenTitle,
+  GameScreenTurnText,
+  GameScreenWinContainer,
+} from "./style";
 
 export const GameScreen: React.FC = () => {
+  const [nameInput, setNameInput] = React.useState("");
   const [roomInput, setRoomInput] = React.useState<string>("");
-  const { board, room, joinRoom, startGame, play } = useGameSocket(
-    "http://localhost:4000"
-  );
+  const {
+    gameSocket,
+    board,
+    room,
+    players,
+    currentPlayer,
+    lastWinner,
+    joinRoom,
+    startGame,
+    play,
+    reset,
+  } = useGameSocket("http://localhost:4000");
 
+  const handleJoinRoom: React.MouseEventHandler<HTMLButtonElement> =
+    useCallback(
+      (e) => {
+        e.preventDefault();
+        joinRoom(roomInput, nameInput);
+      },
+      [joinRoom, roomInput, nameInput]
+    );
+  console.log("lol", currentPlayer, gameSocket?.id);
   return (
-    <div>
-      <h1>Test Websocket</h1>
-      {!room ? (
-        <>
-          <input
-            type={"text"}
-            value={roomInput}
-            onChange={(e) => setRoomInput(e.target.value)}
-          />
-          <button onClick={() => joinRoom(roomInput)}>Join room</button>
-        </>
-      ) : !board ? (
-        <>
-          <button onClick={startGame}>Start game</button>
-        </>
-      ) : (
-        <Board board={board} onCellClick={play} />
-      )}
-    </div>
+    <GameScreenContainer>
+      <GameScreenTitle>Tic Tac Toe</GameScreenTitle>
+      <GameScreenContent>
+        {!room ? (
+          <GameScreenForm>
+            <Input
+              type={"text"}
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              placeholder={"Your name"}
+            />
+            <Input
+              type={"text"}
+              value={roomInput}
+              onChange={(e) => setRoomInput(e.target.value)}
+              placeholder={"Room name"}
+            />
+            <Button onClick={handleJoinRoom} type={"submit"}>
+              Join room
+            </Button>
+          </GameScreenForm>
+        ) : !board ? (
+          <>
+            <GameScreenSubtitle>Players:</GameScreenSubtitle>
+            {players.map((player) => (
+              <PlayerElement player={player} key={player.id} />
+            ))}
+            <Button onClick={startGame}>Start game</Button>
+          </>
+        ) : (
+          <Center>
+            <Board board={board} onCellClick={play} />
+            <GameScreenTurnText>
+              {currentPlayer?.id === gameSocket?.id
+                ? "Your turn!"
+                : `${currentPlayer?.name}'s turn!`}
+            </GameScreenTurnText>
+          </Center>
+        )}
+        {lastWinner && (
+          <GameScreenWinContainer>
+            {`${lastWinner.name} won!!`}
+            <Button onClick={reset}>Restart game</Button>
+          </GameScreenWinContainer>
+        )}
+      </GameScreenContent>
+    </GameScreenContainer>
   );
 };

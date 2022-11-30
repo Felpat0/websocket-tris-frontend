@@ -1,12 +1,14 @@
 import React from "react";
 import { io, Socket } from "socket.io-client";
-import { BoardType } from "../types/game";
+import { BoardType, PlayerType } from "../types/game";
 
 export const useGameSocket = (url?: string) => {
   const [gameSocket, setGameSocket] = React.useState<Socket>();
   const [board, _setBoard] = React.useState<BoardType>();
   const [room, _setRoom] = React.useState<string>();
-  const [players, _setPlayers] = React.useState<string[]>([]);
+  const [players, _setPlayers] = React.useState<PlayerType[]>([]);
+  const [currentPlayer, setCurrentPlayer] = React.useState<PlayerType>();
+  const [lastWinner, setLastWinner] = React.useState<PlayerType>();
 
   const boardRef = React.useRef(board);
   const setBoard = (data: BoardType) => {
@@ -21,20 +23,21 @@ export const useGameSocket = (url?: string) => {
   };
 
   const playersRef = React.useRef(players);
-  const setPlayers = (data: string[]) => {
+  const setPlayers = (data: PlayerType[]) => {
     playersRef.current = data;
     _setPlayers(data);
   };
 
   const formatBoard = React.useCallback((board: BoardType) => {
-    console.log("wei", playersRef.current);
     return {
       squares: board.squares.map((row) =>
         row.map((cell) => {
-          if (!cell || playersRef.current.indexOf(cell) === -1)
-            return undefined;
-          if (playersRef.current.indexOf(cell) === 0) return "X";
-          if (playersRef.current.indexOf(cell) === 1) return "O";
+          const playerIndex = playersRef.current.findIndex(
+            (p) => p.id === cell
+          );
+          if (!cell || playerIndex === -1) return undefined;
+          if (playerIndex === 0) return "X";
+          if (playerIndex === 1) return "O";
           return undefined;
         })
       ),
@@ -65,6 +68,16 @@ export const useGameSocket = (url?: string) => {
           case "players":
             setPlayers(payload.players);
             break;
+          case "info":
+            if (payload.room) setRoom(payload.room);
+            if (payload.players) setPlayers(payload.players);
+            if (payload.board) setBoard(formatBoard(payload.board));
+            if (payload.currentPlayer) setCurrentPlayer(payload.currentPlayer);
+            if (payload.winner) {
+              if (payload.winner === "reset") setLastWinner(undefined);
+              else setLastWinner(payload.winner);
+            }
+            break;
           default:
             break;
         }
@@ -88,10 +101,10 @@ export const useGameSocket = (url?: string) => {
     });
   };
 
-  const joinRoom = (roomToJoin: string) => {
+  const joinRoom = (roomToJoin: string, name: PlayerType["name"]) => {
     gameSocket?.emit("message", {
       type: "join",
-      payload: { room: roomToJoin },
+      payload: { room: roomToJoin, name },
     });
   };
 
@@ -106,14 +119,24 @@ export const useGameSocket = (url?: string) => {
     });
   };
 
+  const reset = () => {
+    setPlayers([]);
+    setLastWinner(undefined);
+    gameSocket?.emit("message", { type: "reset", payload: { room } });
+  };
+
   return {
     gameSocket,
     board,
     room,
+    players,
+    currentPlayer,
+    lastWinner,
     sendPing,
     requestInfo,
     joinRoom,
     startGame,
     play,
+    reset,
   };
 };

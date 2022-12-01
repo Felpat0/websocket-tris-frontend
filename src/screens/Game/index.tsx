@@ -30,7 +30,7 @@ export const GameScreen: React.FC = () => {
     startGame,
     play,
     reset,
-  } = useGameSocket("http://localhost:4000");
+  } = useGameSocket("https://websocket-tris-server.onrender.com");
 
   const handleJoinRoom: React.MouseEventHandler<HTMLButtonElement> =
     useCallback(
@@ -40,7 +40,7 @@ export const GameScreen: React.FC = () => {
       },
       [joinRoom, roomInput, nameInput]
     );
-  console.log("lol", currentPlayer, gameSocket?.id);
+
   return (
     <GameScreenContainer>
       <GameScreenTitle>Tic Tac Toe</GameScreenTitle>

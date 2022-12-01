@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/websocket-tris-frontend/static/css/main.073c9b0a.css",
-    "main.js": "/websocket-tris-frontend/static/js/main.8e752676.js",
+    "main.js": "/websocket-tris-frontend/static/js/main.4a211bf5.js",
     "static/js/787.a3a0a513.chunk.js": "/websocket-tris-frontend/static/js/787.a3a0a513.chunk.js",
     "index.html": "/websocket-tris-frontend/index.html",
     "main.073c9b0a.css.map": "/websocket-tris-frontend/static/css/main.073c9b0a.css.map",
-    "main.8e752676.js.map": "/websocket-tris-frontend/static/js/main.8e752676.js.map",
+    "main.4a211bf5.js.map": "/websocket-tris-frontend/static/js/main.4a211bf5.js.map",
     "787.a3a0a513.chunk.js.map": "/websocket-tris-frontend/static/js/787.a3a0a513.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.073c9b0a.css",
-    "static/js/main.8e752676.js"
+    "static/js/main.4a211bf5.js"
   ]
 }

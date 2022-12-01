@@ -25,6 +25,7 @@ export const GameScreen: React.FC = () => {
     players,
     currentPlayer,
     lastWinner,
+    isADraw,
     joinRoom,
     startGame,
     play,
@@ -64,7 +65,7 @@ export const GameScreen: React.FC = () => {
           </GameScreenForm>
         ) : !board ? (
           <>
-            <GameScreenSubtitle>Players:</GameScreenSubtitle>
+            <GameScreenSubtitle>{`Players: (Room: ${room})`}</GameScreenSubtitle>
             {players.map((player) => (
               <PlayerElement player={player} key={player.id} />
             ))}
@@ -80,9 +81,9 @@ export const GameScreen: React.FC = () => {
             </GameScreenTurnText>
           </Center>
         )}
-        {lastWinner && (
+        {(lastWinner || isADraw) && (
           <GameScreenWinContainer>
-            {`${lastWinner.name} won!!`}
+            {lastWinner ? `${lastWinner.name} won!!` : `It's a draw!`}
             <Button onClick={reset}>Restart game</Button>
           </GameScreenWinContainer>
         )}

@@ -9,6 +9,7 @@ export const useGameSocket = (url?: string) => {
   const [players, _setPlayers] = React.useState<PlayerType[]>([]);
   const [currentPlayer, setCurrentPlayer] = React.useState<PlayerType>();
   const [lastWinner, setLastWinner] = React.useState<PlayerType>();
+  const [isADraw, setIsADraw] = React.useState<boolean>(false);
 
   const boardRef = React.useRef(board);
   const setBoard = (data: BoardType) => {
@@ -73,10 +74,12 @@ export const useGameSocket = (url?: string) => {
             if (payload.players) setPlayers(payload.players);
             if (payload.board) setBoard(formatBoard(payload.board));
             if (payload.currentPlayer) setCurrentPlayer(payload.currentPlayer);
-            if (payload.winner) {
-              if (payload.winner === "reset") setLastWinner(undefined);
-              else setLastWinner(payload.winner);
+            if (payload.winner) setLastWinner(payload.winner);
+            if (payload.reset) {
+              setLastWinner(undefined);
+              setIsADraw(false);
             }
+            if (payload.draw) setIsADraw(true);
             break;
           default:
             break;
@@ -132,6 +135,7 @@ export const useGameSocket = (url?: string) => {
     players,
     currentPlayer,
     lastWinner,
+    isADraw,
     sendPing,
     requestInfo,
     joinRoom,
